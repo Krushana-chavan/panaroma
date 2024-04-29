@@ -25,14 +25,14 @@ const Popup = ({ isOpen, onClose, onSubmit }) => {
     setErrors({ ...errors, [name]: '' });
   };
 
-  const handleSubmit = (e) => {
-   
+  const handleSubmit = async (e) => {
+   console.log("formSubmit",formData);
     // Your form validation logic goes here
     const formErrors = validateForm(formData);
     if (Object.keys(formErrors).length > 0) {
       setErrors(formErrors);
     } else {
-      onSubmit(formData);
+    await  onSubmit(formData);
       onClose(); // Close the popup on successful form submission
     }
   };

@@ -27,29 +27,64 @@ import Popup from "./Popup";
 export const HomePage = () => {
   const toast = useToast();
   const [isOpen, setIsOpen] = useState(false);
+  const [isEdit, setIsEdit] = useState(false);
   const dispatch = useDispatch();
+  const handleEditAndUpate = (id) => {
+    if (id) {
+      setIsEdit(true)
+
+    } else {
+      setIsEdit(false)
+    }
+  }
   const {
-    forecast,
     isLoading,
     error,
-    langitude,
     data,
-    currentLocation,
-    latitude,
   } = useSelector((state) => {
     return {
       isLoading: state.isLoading,
-      langitude: state.langitude,
       data: state.data,
-      latitude: state.latitude,
-      forecast: state.forecast,
-      currentLocation: state.currentLocation,
       error: state.error,
     };
   });
 
   const [name, setName] = useState("");
 
+  const onSubmit = async (formData) => {
+    console.log("formData", formData);
+    return
+    try {
+
+      let response = await axios.post("http://localhost:3001/v1/currency/addData", data);
+
+      dispatch({
+        type: REQUEST_OF_DATA,
+        payload: response.data,
+      });
+      console.log(response.data);
+
+      return response.data;
+    } catch (error) {
+      // Handle errors, such as network issues or server errors
+      console.error("Error occurred:", error);
+      // Optionally, rethrow the error to propagate it to the caller
+      throw error;
+    }
+  };
+
+  const onEdit = async (id, data) => {
+
+    let response = await axios.post(`http://localhost:3000/v1/currency/update/${id}`, data)
+    if (response.status) {
+      dispatch({
+        type: REQUEST_OF_DATA,
+        payload: response.data,
+      });
+      console.log(response.data);
+      return response.data
+    }
+  }
   const [isRotate, setIsRotate] = useState(false);
   const logoutuser = () => {
     alert("Did you want to logout?");
@@ -105,7 +140,7 @@ export const HomePage = () => {
               fontFamily="poppins"
               size={"xl"}
             >
-        P
+              P
             </Heading>
 
             <Box mb={5} mt={5} w="100%">
@@ -138,10 +173,10 @@ export const HomePage = () => {
                   />
                 </Button>
 
-               
+
 
                 <Button
-        onClick={togglePopup}
+                  onClick={togglePopup}
                   ml={1}
                   h="45px"
                   p={5}
@@ -171,13 +206,13 @@ export const HomePage = () => {
           </SimpleGrid>
         </Box>
 
-        <SimpleGrid w="95%"  m="auto" mt={7} columns={[1, 2, 2, 3]} spacing={8}>
-         
+        <SimpleGrid w="95%" m="auto" mt={7} columns={[1, 2, 2, 3]} spacing={8}>
+
           {data?.data?.map((item) => {
             return (
               <Box
                 maxHeight="300px"
-             
+
                 fontFamily="poppins"
                 color={"#3E206D"}
                 w="100%"
@@ -200,32 +235,32 @@ export const HomePage = () => {
                     borderRadius={25}
                     h="100%"
                   >
-                  <Text>Tier: {item?.tier}</Text>
+                    <Text>Tier: {item?.tier}</Text>
                     <Text>Rank: {item?.rank}</Text>
                     <Text>Change : {item?.change}</Text>
-                   <Text>Btc. Price : {(Number(item?.btcPrice)?.toFixed(2))}</Text>
+                    <Text>Btc. Price : {(Number(item?.btcPrice)?.toFixed(2))}</Text>
 
                     <Flex gap={2} mb={5}>
-                 <Button leftIcon={<DeleteIcon />} colorScheme='linkedin' ></Button>
-                  <Button leftIcon={<EditIcon />} colorScheme='linkedin' ></Button>
-                 </Flex> 
-                 </VStack>
+                      <Button leftIcon={<DeleteIcon />} colorScheme='linkedin' ></Button>
+                      <Button onClick={()=>handleEditAndUpate(item?._id)} leftIcon={<EditIcon />} colorScheme='linkedin' ></Button>
+                    </Flex>
+                  </VStack>
                   <VStack
                     ml={10}
                     h="100%"
                     fontFamily="poppins"
                     w="40%"
                     maxHeight="100%"
-                   
+
                     // p="15px"
                     // pl="50px"
                     fontWeight="bold"
                     spacing={5}
                   >
-                  <Image borderRadius="full" width="144px" height="144px" maxHeight="100%" maxWidth="100%"  src={item.iconUrl}/>
-                  <Text margin={"auto"}> {item?.name}</Text>
-                  <Text margin={"auto"}> {(item?.price).toFixed(2) } {item?.symbol}</Text>
-                
+                    <Image borderRadius="full" width="144px" height="144px" maxHeight="100%" maxWidth="100%" src={item.iconUrl} />
+                    <Text margin={"auto"}> {item?.name}</Text>
+                    <Text margin={"auto"}> {(item?.price).toFixed(2)} {item?.symbol}</Text>
+
                   </VStack>
                 </Flex>
               </Box>
@@ -233,9 +268,8 @@ export const HomePage = () => {
           })}
         </SimpleGrid>
       </Box>
-      <Popup isOpen={isOpen} onClose={togglePopup}>
-        <h2>Hello, I'm a Popup!</h2>
-        <p>This is some content inside the popup.</p>
+      <Popup isOpen={isOpen} onClose={togglePopup} onEdit={onEdit} onSubmit={onSubmit} handleEditAndUpate={handleEditAndUpate} isEdit={isEdit}>
+
       </Popup>
       <Text textAlign={"center"} color={"#3E206D"} fontWeight="bold" mb={2}>
         © Made by Krushana chavan

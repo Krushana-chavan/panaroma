@@ -5,6 +5,7 @@ import { SIGNIN_FAILURE_REQUEST, SIGNIN_LOODING_REQUEST, SIGNIN_SUCCESS_REQUEST,
 const initState = {
   data: [],
   error:"",
+  formData: {},
   isLoading:true
 };
 
@@ -23,10 +24,10 @@ export const reducer = (state = initState, action) => {
         ...state,isLoading:false,error:false
       }
     }
-    case types.GET_CURRENT_LOCATION: {
+    case types.ADD_DATA: {
       return {
         ...state,
-        currentLocation: payload,isLoading:false,error:false
+        formData: payload,isLoading:false,error:false
       };
     }
     case types.GET_ALL_DATA: {
@@ -35,6 +36,13 @@ export const reducer = (state = initState, action) => {
         data: payload,isLoading:false
       };
     }
+    case types.ADD_DATA_SUCCESS: {
+      return {
+        ...state,error:false,
+        data: payload,isLoading:false
+      };
+    }
+    
 
     case types.GET_ERROR:{
         return {
@@ -42,7 +50,7 @@ export const reducer = (state = initState, action) => {
         }
     }
    
-    case SIGNUP_LOODING_REQUEST : return {
+  case SIGNUP_LOODING_REQUEST : return {
       ...state,isLoding: true
   }
   case SIGNUP_SUCCESS_REQUEST : return {

@@ -39,18 +39,37 @@ export const refreshPage = () => {
 
 
 
-export const get7daysWeather=(latitude,longitude)=>dispatch=>{
-  dispatch({type:types.REQUEST_OF_DATA})
-  let url=`https://api.openweathermap.org/data/2.5/onecall?lat=${latitude}&lon=${longitude}&exclude=hourly,minutely&units=metric&appid=aeb2e8e67a323e70bae652830b434d64`
-axios.get(url)
-.then((r)=>{
 
-  // console.log("7",r.data.daily)
- return dispatch({type:types.GET_WEATHER_FORECAST,payload:r.data.daily})
-}).catch(e=>{
-  return dispatch({ type: types.GET_ERROR, payload: e });
-})
-}
+
+export const addCurrency =  (e) => async(dispatch) => {
+  dispatch({ type: types.ADD_DATA_LOADING });
+  console.log(e)
+return
+  return await axios
+    .post(`http://localhost:3001/v1/auth/register`, e)
+    .then((response) => {
+      console.log(response)
+      if(response.status === 201){
+        return dispatch({
+          type: SIGNUP_SUCCESS_REQUEST,
+          payload: "User Created Successfully!",
+        });
+      }else{
+        dispatch({
+          type: SIGNUP_FAILURE_REQUEST,
+          payload: response.data.data,
+        });
+      }
+     
+    })
+    .catch(function (error) {
+      const { response } = error;
+      return dispatch({
+        type: SIGNUP_FAILURE_REQUEST,
+        payload: response.data.data,
+      });
+    });
+};
 
 // import { storeData_LC } from "../../components/LocalStorage";
 
