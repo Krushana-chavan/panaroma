@@ -6,13 +6,12 @@ const cryptoCurrencySchema = mongoose.Schema(
 	{
 		uuid: {
 			type: String,
-			trim: true,
-			required: true,
+			trim: true,	
 		},
 		symbol: {
 			type: String,
 			trim: true,
-			required: true,
+		
 		},
 		name: {
 			type: String,

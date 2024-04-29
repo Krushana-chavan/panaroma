@@ -5,10 +5,10 @@ const { sendResponse } = require("../../../utils/responseHandler");
 const productsServices = require("../services");
 const addProduct = catchAsync(async (req, res) => {
     const {
-        handleId,
-        fieldType,
+        tier,
+        change,
         name,
-        description,
+        btcPrice,
         productImageUrl,
        
         discountPercentage,
