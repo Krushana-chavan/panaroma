@@ -11,7 +11,6 @@ import {
 } from "@chakra-ui/react";
 import { Box } from "@chakra-ui/react";
 import { Flex } from "@chakra-ui/react";
-// import { Text } from '@chakra-ui/react/dist'
 import React, { useEffect, useState } from "react";
 import { DeleteIcon, EditIcon, EmailIcon, RepeatIcon, Search2Icon } from "@chakra-ui/icons";
 import axios from "axios";
@@ -28,10 +27,35 @@ export const HomePage = () => {
   const toast = useToast();
   const [isOpen, setIsOpen] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
+  const [id,setId] = useState();
+  const [formData, setFormData] = useState({
+    symbol: "",
+    name: "",
+    color: "",
+    iconUrl: "",
+    price: "",
+    tier: "",
+    change: "",
+    rank: "",
+    btcPrice: "",
+  });
+
   const dispatch = useDispatch();
-  const handleEditAndUpate = (id) => {
+  const handleEditAndUpate = async(id) => {
+  
+    setId(id);
     if (id) {
-      setIsEdit(true)
+    
+      const response = await axios.get(`http://localhost:3001/v1/currency/getCurrencyById/${id}`)
+     
+      if(response.status === 200){
+        setIsOpen(true)
+        setIsEdit(true)
+       
+        setFormData(response?.data?.data)
+      }else{
+        alert(response?.data?.data)
+      }
 
     } else {
       setIsEdit(false)
@@ -52,38 +76,58 @@ export const HomePage = () => {
   const [name, setName] = useState("");
 
   const onSubmit = async (formData) => {
-    console.log("formData", formData);
-    return
+  
+   
     try {
-
-      let response = await axios.post("http://localhost:3001/v1/currency/addData", data);
-
-      dispatch({
-        type: REQUEST_OF_DATA,
-        payload: response.data,
-      });
-      console.log(response.data);
+      let response = await axios.post("http://localhost:3001/v1/currency/addCurrency", formData);
+    if(response.status === 201 || 200){
+      dispatch(getAlldata());
+      setFormData()
+    }
+     
 
       return response.data;
     } catch (error) {
-      // Handle errors, such as network issues or server errors
+      
       console.error("Error occurred:", error);
-      // Optionally, rethrow the error to propagate it to the caller
+    
       throw error;
     }
   };
 
-  const onEdit = async (id, data) => {
+  const onDelete = async (id) => {
 
-    let response = await axios.post(`http://localhost:3000/v1/currency/update/${id}`, data)
-    if (response.status) {
-      dispatch({
-        type: REQUEST_OF_DATA,
-        payload: response.data,
-      });
-      console.log(response.data);
+    if (window.confirm("Are you sure you want to delete this?")) {
+      try {
+        let response = await axios.put(`http://localhost:3001/v1/currency/deleteCurrency/${id}`);
+        
+        if (response.status === 200) {
+          dispatch(getAlldata());
+          alert(response.data?.data)
+         
+        }
+      } catch (error) {
+        console.error("Error deleting currency:", error);
+       
+      }
+    }
+  }
+  
+  const onEdit = async () => {
+ try{
+  let response = await axios.put(`http://localhost:3001/v1/currency/updateCurrency/${id}`,formData)
+ 
+    if (response.status === 200) {
+      alert("Currency updated successfully")
+      dispatch(getAlldata());
+      setFormData()
+      setIsOpen(false)
       return response.data
     }
+ }catch (e) {
+  console.error(e.message)
+ }
+    
   }
   const [isRotate, setIsRotate] = useState(false);
   const logoutuser = () => {
@@ -91,31 +135,20 @@ export const HomePage = () => {
     localStorage.clear();
     window.location.reload();
   };
-  const onClickSearch = () => {
-    if (name == "") {
-      toast({
-        title: "Name is empty!",
-        status: "error",
-        duration: 3000,
-        isClosable: true,
-      });
-    } else {
-      dispatch(getAlldata(name));
-      setName("");
-    }
-  };
-  console.log("data", data);
+
   useEffect(() => {
     dispatch({ type: REQUEST_OF_DATA });
     dispatch(getAlldata());
   }, [dispatch]);
   const togglePopup = () => {
+    setIsEdit(false);
     setIsOpen(!isOpen);
   };
   if (error) {
-    // console.log(error.response.statusText)
+    console.log(error)
+  
     toast({
-      title: `${error.response.statusText}`,
+      title: `${error.response?.data}`,
       status: "error",
       duration: 3000,
       isClosable: true,
@@ -123,13 +156,13 @@ export const HomePage = () => {
   }
   if (isLoading) {
     return <Loading />;
-  }
+  }else{
   return (
     <>
       {" "}
       <Box>
         <Box
-          // h={"80px"}
+          
           bg="#F0E3FF"
         >
           <SimpleGrid columns={[1, 1, 2]} m="auto" w="70%">
@@ -140,41 +173,11 @@ export const HomePage = () => {
               fontFamily="poppins"
               size={"xl"}
             >
-              P
+              PANOROMA
             </Heading>
 
             <Box mb={5} mt={5} w="100%">
               <Flex justifyContent={"center"}>
-                <input
-                  onChange={(e) => setName(e.target.value)}
-                  value={name}
-                  style={{
-                    width: "100%",
-                    height: "45px",
-                    border: "2px solid #3E206D",
-                    padding: "5px",
-                    borderRadius: "10px",
-                  }}
-                  variant={"outline"}
-                  placeholder="name"
-                />
-                <Button
-                  onClick={onClickSearch}
-                  ml={1}
-                  h="45px"
-                  borderRadius={10}
-                  bg="#3E206D"
-                  _hover={{ bg: "white", color: "#3E206D" }}
-                >
-                  <Search2Icon
-                    _hover={{ color: "#3E206D" }}
-                    color={"white"}
-                    boxSize={6}
-                  />
-                </Button>
-
-
-
                 <Button
                   onClick={togglePopup}
                   ml={1}
@@ -241,8 +244,10 @@ export const HomePage = () => {
                     <Text>Btc. Price : {(Number(item?.btcPrice)?.toFixed(2))}</Text>
 
                     <Flex gap={2} mb={5}>
-                      <Button leftIcon={<DeleteIcon />} colorScheme='linkedin' ></Button>
-                      <Button onClick={()=>handleEditAndUpate(item?._id)} leftIcon={<EditIcon />} colorScheme='linkedin' ></Button>
+                      <Button onClick={()=>{
+                        onDelete(item?._id || item?.id)
+                      }} leftIcon={<DeleteIcon />} colorScheme='linkedin' ></Button>
+                      <Button onClick={()=>handleEditAndUpate(item?._id || item?.id)} leftIcon={<EditIcon />} colorScheme='linkedin' ></Button>
                     </Flex>
                   </VStack>
                   <VStack
@@ -259,7 +264,7 @@ export const HomePage = () => {
                   >
                     <Image borderRadius="full" width="144px" height="144px" maxHeight="100%" maxWidth="100%" src={item.iconUrl} />
                     <Text margin={"auto"}> {item?.name}</Text>
-                    <Text margin={"auto"}> {(item?.price).toFixed(2)} {item?.symbol}</Text>
+                    <Text margin={"auto"}> {(item?.price)?.toFixed(2)} {item?.symbol}</Text>
 
                   </VStack>
                 </Flex>
@@ -268,12 +273,12 @@ export const HomePage = () => {
           })}
         </SimpleGrid>
       </Box>
-      <Popup isOpen={isOpen} onClose={togglePopup} onEdit={onEdit} onSubmit={onSubmit} handleEditAndUpate={handleEditAndUpate} isEdit={isEdit}>
+   {isOpen? <Popup isOpen={isOpen} formData={formData} setFormData={setFormData} onClose={togglePopup} onEdit={onEdit} onSubmit={onSubmit} handleEditAndUpate={handleEditAndUpate} isEdit={isEdit}>
 
-      </Popup>
+</Popup>:""}  
       <Text textAlign={"center"} color={"#3E206D"} fontWeight="bold" mb={2}>
         © Made by Krushana chavan
       </Text>
     </>
   );
-};
+};}

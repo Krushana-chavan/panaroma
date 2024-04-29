@@ -1,29 +1,24 @@
 const CurrencyModel = require("../currency.model");
 
-const getAllProducts = async (page, limit, filter, sort,minPrice,maxPrice) => {
+const getAllProducts = async (page, limit, filter, sort) => {
 	
 	try {
 	  const length = limit && parseInt(limit, 10) > 0 ? parseInt(limit, 10) : 10;
 	  const start = page && parseInt(page, 10) > 0 ? parseInt(page, 10) : 1;
 	  const skip = (start - 1) * length;
-	  const filterQuery = {active:true,};
+	  const filterQuery = {active:true};
 	  if (filter && filter.name !== undefined && filter.name !== "") {
 		var searchRegex = new RegExp(`.*${filter.name}.*`, "i");
 		filterQuery.$or = [
 		  { name: { $regex: searchRegex } },
 		];
 	  }
-  
-	  let sortQuery = { _id: -1 };
-  
-	  if (sort != null) { sortQuery = sort;}
-
-
+	  let sortQuery = { createdAt: -1 };
+	
 	  const CurrencyList = await CurrencyModel.find(filterQuery)
-		.skip(skip)
-		.limit(length)
+		
 		.sort(sortQuery)
-		.lean();
+		
 	  const totalResults = await CurrencyModel.countDocuments(filterQuery);
   
 	  const totalPages = Math.ceil(totalResults / length);

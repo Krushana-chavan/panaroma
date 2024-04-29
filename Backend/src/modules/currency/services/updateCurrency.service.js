@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const currencyModel = require('../currency.model');
 
-const updateOrderById = async ({id, body}) => {
+const updateOrderById = async (id, body) => {
 	try {
 		
 		const filterQuery = { active: true, _id: new mongoose.Types.ObjectId(id) };

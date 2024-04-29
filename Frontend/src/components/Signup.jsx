@@ -24,10 +24,11 @@ const SignupComponent = () => {
 
   const handelSignUp = (e) => {
     e.preventDefault();
-    // setSignUpData({...signUpData, data});
+ 
    
     Dispatch(SignupReq(data)).then((res)=>{
-      if(res.payload==='Signup Sucessfully'){
+      console.log(res)
+      if(res.payload==='User Created Successfully!'){
         alert(res.payload);
         navigate("/login")
       }else{
@@ -63,7 +64,7 @@ const SignupComponent = () => {
           />
           <input
             type="text"
-            placeholder="name"
+            placeholder="Name"
             name="name"
             value={data.name}
             onChange={handelInputChange}
@@ -73,7 +74,7 @@ const SignupComponent = () => {
             type="password"
             placeholder="Password"
             name="password"
-            value={DataTransfer.password}
+            value={data.password}
             onChange={handelInputChange}
             required
           />

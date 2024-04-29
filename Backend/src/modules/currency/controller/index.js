@@ -1,4 +1,6 @@
 module.exports.transferData = require('./transferData.controller')
 module.exports.getAllData = require('./getAllData.controller')
-
-
+module.exports.getCurrencyById = require('./getCurrencyById.controller')
+module.exports.updateCurrency = require('./updateCurrency.controller')
+module.exports.deleteCurrency = require('./deleteCurrency.controller')
+module.exports.addCurrency = require("./addCurrency.controller")

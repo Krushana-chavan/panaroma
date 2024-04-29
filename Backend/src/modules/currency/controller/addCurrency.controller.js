@@ -2,38 +2,49 @@ const httpStatus = require('http-status');
 const catchAsync = require("../../../utils/catchAsync");
 const pick = require('../../../utils/pick');
 const { sendResponse } = require("../../../utils/responseHandler");
-const productsServices = require("../services");
+const currencyService = require("../services");
 const addProduct = catchAsync(async (req, res) => {
     const {
         tier,
         change,
         name,
+        color,
         btcPrice,
-        productImageUrl,
-       
-        discountPercentage,
-        brand
+        rank,
+        symbol,
+        iconUrl,
+        price
     } = await pick(req.body,
         [
-            "handleId",
-            "fieldType",
+            "tier",
+            "change",
             "name",
-            "description",
-            "productImageUrl",
-            "visible",
-            "price",
-            
-            "brand"]);
-    const insertResult = await productsServices.addProduct({
-        handleId,
-        fieldType,
+            "btcPrice",
+            "iconUrl",
+            "rank",
+            "color",
+            "symbol",
+            "price"]);
+
+            console.log( tier,
+                change,
+                name,
+                btcPrice,
+                rank,
+                color,
+                symbol,
+                iconUrl,
+                price)
+    const insertResult = await currencyService.transferData({
+        tier,
+        change,
         name,
-        description,
-        productImageUrl,
-       
-        originalPrice,
-        discountPercentage,
-        brand,
+        btcPrice,
+        rank,
+        color,
+        symbol,
+        iconUrl,
+        price
     });
     if (insertResult.status) {
         sendResponse(res, httpStatus.OK, insertResult.data, null);
